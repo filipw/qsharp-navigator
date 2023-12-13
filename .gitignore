@@ -1,0 +1,9 @@
+bindings/
+libs/
+qsharp-bridge/target
+qsharp-bridge/Cargo.lock
+
+qsharp.navigator/qsharp.navigator.xcodeproj/project.xcworkspace/xcuserdata/filipw.xcuserdatad/UserInterfaceState.xcuserstate
+qsharp.navigator/qsharp.navigator.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+qsharp.navigator/qsharp.navigator.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+qsharp.navigator/qsharp.navigator.xcodeproj/xcuserdata/filipw.xcuserdatad/xcschemes/xcschememanagement.plist
