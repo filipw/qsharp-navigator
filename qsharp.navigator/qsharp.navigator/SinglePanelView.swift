@@ -17,7 +17,7 @@ struct SinglePanelView: View {
     @State private var isEditing = false
     @State private var showResults = false
     @State private var position = CodeEditor.Position()
-    @State private var messages: Set<Located<Message>> = Set()
+    @State private var messages: Set<TextLocated<Message>> = Set()
     @State private var showMinimap = true
     @State private var wrapText = true
     @State private var isPlaying = false
@@ -66,7 +66,8 @@ struct SinglePanelView: View {
                 
                 Divider()
                 
-                CodeEditor(text: $code, position: $position, messages: $messages, layout: CodeEditor.LayoutConfiguration(showMinimap: showMinimap, wrapText: wrapText)).frame(height: 300)
+                CodeEditor(text: $code, position: $position, messages: $messages, layout: CodeEditor.LayoutConfiguration(showMinimap: showMinimap, wrapText: wrapText))
+                    .frame(height: 400)
                 
                 Divider()
                 
