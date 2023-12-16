@@ -10,19 +10,7 @@ import CodeEditorView
 import LanguageSupport
 
 struct SinglePanelView: View {
-    @State var code: String
-    @State var title: String
-    
-    @State private var shots = 1.0
-    @State private var isEditing = false
-    @State private var showResults = false
-    @State private var position = CodeEditor.Position()
-    @State private var messages: Set<TextLocated<Message>> = Set()
-    @State private var showMinimap = true
-    @State private var wrapText = true
-    @State private var isPlaying = false
-    
-    @State var executionStates : [ExecutionState] = []
+    @ObservedObject var model: CodeExampleModel
     
     var body: some View {
         ScrollView {
@@ -30,33 +18,23 @@ struct SinglePanelView: View {
                 HStack {
                     HStack {
                         Image(systemName: "repeat").foregroundColor(.accentColor)
-                        Text("\(Int(shots))")
+                        Text("\(Int(model.shots))")
                             .frame(width: 40, alignment: .leading)
                             .foregroundColor(.accentColor)
                     }
                     
-                    Slider(value: $shots,
+                    Slider(value: $model.shots,
                            in: 1...999,
                            onEditingChanged: { editing in
-                        isEditing = editing
-                    }
+                        model.isEditing = editing
+                        }
                     )
                     
                     Spacer()
                     
                     Button(action: {
                         withAnimation {
-                            DispatchQueue.main.async {
-                                showResults = false
-                            }
-                            
-                            let results = try! runQsShots(source: code, shots: UInt32(shots))
-                            print(results.count)
-                            
-                            DispatchQueue.main.async {
-                                executionStates = results
-                                showResults = true
-                            }
+                            model.runShots()
                         }
                     }, label: {
                         Image(systemName: "play.fill")
@@ -66,17 +44,17 @@ struct SinglePanelView: View {
                 
                 Divider()
                 
-                CodeEditor(text: $code, position: $position, messages: $messages, layout: CodeEditor.LayoutConfiguration(showMinimap: showMinimap, wrapText: wrapText))
+                CodeEditor(text: $model.code, position: $model.position, messages: $model.messages, layout: CodeEditor.LayoutConfiguration(showMinimap: model.showMinimap, wrapText: model.wrapText))
                     .frame(height: 400)
                 
                 Divider()
                 
-                if showResults {
-                    ExecutionResultView(executionStates: $executionStates)
+                if model.showResults {
+                    ExecutionResultView(executionStates: $model.executionStates)
                 }
                 Spacer()
             }
-            .navigationTitle(title)
+            .navigationTitle(model.title)
             .padding()
         }
     }
@@ -85,7 +63,7 @@ struct SinglePanelView: View {
 struct SinglePanelView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            SinglePanelView(code: Samples.data[0].samples[0].code, title: Samples.data[0].name)
+            SinglePanelView(model: CodeExampleModel(code: Samples.data[0].samples[0].code, title: Samples.data[0].name))
         }
     }
 }

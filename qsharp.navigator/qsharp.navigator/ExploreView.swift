@@ -25,7 +25,7 @@ struct ExploreView: View {
                             .padding(.trailing)
                         
                         ForEach(group.samples) { item in
-                            NavigationLink(destination: SinglePanelView(code: item.code, title: item.name)) {
+                            NavigationLink(destination: SinglePanelView(model: CodeExampleModel(code: item.code, title: item.name))) {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 8) {
                                         HStack {

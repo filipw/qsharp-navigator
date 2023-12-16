@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct MainView: View {
     var body: some View {
         TabView {
@@ -15,7 +14,8 @@ struct MainView: View {
                 .tabItem {
                     Label("Explore", systemImage: "house")
                 }
-        }//.accentColor(Color("MainColor"))
+        }
+        //.accentColor(Color("MainColor"))
     }
 }
 

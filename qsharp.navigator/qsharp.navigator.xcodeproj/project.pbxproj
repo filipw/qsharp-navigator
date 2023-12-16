@@ -21,6 +21,7 @@
 		F0F20F712B29FCFD000DEED9 /* qsharp_bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F20F702B29FCFD000DEED9 /* qsharp_bridge.swift */; };
 		F0F20F732B29FDB6000DEED9 /* qsharp_bridge_framework.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = F0F20F722B29FDB6000DEED9 /* qsharp_bridge_framework.xcframework */; };
 		F0F20F742B29FDB6000DEED9 /* qsharp_bridge_framework.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F0F20F722B29FDB6000DEED9 /* qsharp_bridge_framework.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F0F20F7B2B2D921B000DEED9 /* CodeExampleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F20F7A2B2D921B000DEED9 /* CodeExampleModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -50,6 +51,7 @@
 		F08CEBEC2A651081003B3B88 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		F0F20F702B29FCFD000DEED9 /* qsharp_bridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = qsharp_bridge.swift; path = ../../bindings/qsharp_bridge.swift; sourceTree = "<group>"; };
 		F0F20F722B29FDB6000DEED9 /* qsharp_bridge_framework.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = qsharp_bridge_framework.xcframework; path = ../libs/qsharp_bridge_framework.xcframework; sourceTree = "<group>"; };
+		F0F20F7A2B2D921B000DEED9 /* CodeExampleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeExampleModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +98,7 @@
 				F08988872A671E170062BB8E /* ExecutionResultView.swift */,
 				F08988C02A718FF30062BB8E /* MainView.swift */,
 				F08988C22A7192D80062BB8E /* DifficultyView.swift */,
+				F0F20F7A2B2D921B000DEED9 /* CodeExampleModel.swift */,
 			);
 			path = qsharp.navigator;
 			sourceTree = "<group>";
@@ -200,6 +203,7 @@
 				F08CEBE82A651081003B3B88 /* ExploreView.swift in Sources */,
 				F08988862A66E2F50062BB8E /* Data.swift in Sources */,
 				F08988C32A7192D80062BB8E /* DifficultyView.swift in Sources */,
+				F0F20F7B2B2D921B000DEED9 /* CodeExampleModel.swift in Sources */,
 				F08988842A66E22E0062BB8E /* SinglePanelView.swift in Sources */,
 				F08CEBE62A651081003B3B88 /* strathweb_qsharp_bridge_sampleApp.swift in Sources */,
 			);
@@ -338,6 +342,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -369,6 +374,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
