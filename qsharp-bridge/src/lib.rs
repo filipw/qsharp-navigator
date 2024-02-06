@@ -1,6 +1,6 @@
 uniffi::include_scaffolding!("qsharp-bridge");
 
-use qsc::interpret::stateful::{Interpreter, self};
+use qsc::interpret::{Interpreter, self};
 use thiserror::Error;
 use num_bigint::BigUint;
 use num_complex::Complex64;
@@ -14,8 +14,8 @@ pub enum QsError {
     ErrorMessage { error_text: String }
 }
 
-impl From<Vec<stateful::Error>> for QsError {
-    fn from(errors: Vec<stateful::Error>) -> Self {
+impl From<Vec<interpret::Error>> for QsError {
+    fn from(errors: Vec<interpret::Error>) -> Self {
         let mut error_message = String::new();
 
         for error in errors {
