@@ -3,6 +3,7 @@ mod tests;
 uniffi::include_scaffolding!("qsharp-bridge");
 
 use qsc::interpret::{Interpreter, self};
+use resource_estimator::{estimate_entry, estimate_expr};
 use thiserror::Error;
 use num_bigint::BigUint;
 use num_complex::Complex64;
@@ -31,6 +32,31 @@ impl From<Vec<interpret::Error>> for QsError {
         QsError::ErrorMessage { error_text: error_message }
     }
 }
+
+impl From<Vec<resource_estimator::Error>> for QsError {
+    fn from(errors: Vec<resource_estimator::Error>) -> Self {
+        let mut error_message = String::new();
+
+        for error in errors {
+            match error {
+                resource_estimator::Error::Interpreter(interpret_error) => {
+                    let qs_error: QsError = vec![interpret_error].into();
+                    if let QsError::ErrorMessage { error_text } = qs_error {
+                        error_message.push_str(&error_text);
+                    }
+                },
+                resource_estimator::Error::Estimation(estimates_error) => {
+                    // Handle `estimates::Error` similarly, if applicable
+                    error_message.push_str(&format!("Estimation error: {:?}", estimates_error));
+                }
+            }
+        }
+
+        // Ensure that the leading ", " is removed if it's the start of the error message
+        QsError::ErrorMessage { error_text: error_message.trim_start_matches(", ").to_string() }
+    }
+}
+
 
 pub fn run_qs(source: &str) -> Result<ExecutionState, QsError> {
     let source_map = SourceMap::new(vec![("temp.qs".into(), source.into())], None);
@@ -79,8 +105,7 @@ pub fn run_qs_shots(source: &str, shots: u32) -> Result<Vec<ExecutionState>, QsE
     return Ok(results);
 }
 
-pub fn qir(source: &str) -> Result<String, QsError> {
-    //let source_map = SourceMap::new(vec![("temp.qs".into(), source.into())], None);
+pub fn qir(expression: &str) -> Result<String, QsError> {
     let mut interpreter = match Interpreter::new(
         true,
         SourceMap::default(),
@@ -93,7 +118,44 @@ pub fn qir(source: &str) -> Result<String, QsError> {
         }
     };
 
-    let result = interpreter.qirgen(source)?;
+    let result = interpreter.qirgen(expression)?;
+    return Ok(result);
+}
+
+pub fn estimate(source: &str, job_params: Option<String>) -> Result<String, QsError> {
+    let source_map = SourceMap::new(vec![("temp.qs".into(), source.into())], None);
+    let mut interpreter = match Interpreter::new(
+        true,
+        source_map,
+        PackageType::Exe,
+        RuntimeCapabilityFlags::empty(),
+    ) {
+        Ok(interpreter) => interpreter,
+        Err(errors) => {
+            return Err(errors.into());
+        }
+    };
+
+    let params = job_params.as_deref().unwrap_or("[{}]");
+    let result = estimate_entry(&mut interpreter, params)?;
+    return Ok(result);
+}
+
+pub fn estimate_expression(expression: &str, job_params: Option<String>) -> Result<String, QsError> {
+    let mut interpreter = match Interpreter::new(
+        true,
+        SourceMap::default(),
+        PackageType::Lib,
+        RuntimeCapabilityFlags::empty(),
+    ) {
+        Ok(interpreter) => interpreter,
+        Err(errors) => {
+            return Err(errors.into());
+        }
+    };
+
+    let params = job_params.as_deref().unwrap_or("[{}]");
+    let result = estimate_expr(&mut interpreter, expression, params)?;
     return Ok(result);
 }
 

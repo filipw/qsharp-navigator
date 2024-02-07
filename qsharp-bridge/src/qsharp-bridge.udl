@@ -7,7 +7,13 @@ namespace qsharp_bridge {
     sequence<ExecutionState> run_qs_shots([ByRef]string source, u32 shots);
 
     [Throws=QsError]
-    string qir([ByRef]string source);
+    string qir([ByRef]string expression);
+
+    [Throws=QsError]
+    string estimate([ByRef]string source, string? job_params);
+
+    [Throws=QsError]
+    string estimate_expression([ByRef]string expression, string? job_params);
 };
 
 [Error]
