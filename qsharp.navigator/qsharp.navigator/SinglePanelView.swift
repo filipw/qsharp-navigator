@@ -1,13 +1,4 @@
-//
-//  SwiftUIView.swift
-//  qsharp.navigator
-//
-//  Created by Filip W on 18.07.23.
-//
-
 import SwiftUI
-import CodeEditorView
-import LanguageSupport
 
 struct SinglePanelView: View {
     @ObservedObject var model: CodeExampleModel
@@ -44,8 +35,15 @@ struct SinglePanelView: View {
                 
                 Divider()
                 
-                CodeEditor(text: $model.code, position: $model.position, messages: $model.messages, layout: CodeEditor.LayoutConfiguration(showMinimap: model.showMinimap, wrapText: model.wrapText))
-                    .frame(height: 400)
+                MonacoEditor(
+                    text: $model.code,
+                    position: $model.editorPosition,
+                    layout: MonacoEditor.LayoutConfiguration(
+                        showMinimap: model.showMinimap,
+                        wrapText: model.wrapText
+                    )
+                )
+                .frame(height: 400)
                 
                 Divider()
                 
@@ -65,11 +63,5 @@ struct SinglePanelView_Previews: PreviewProvider {
         NavigationView {
             SinglePanelView(model: CodeExampleModel(code: Samples.data[0].samples[0].code, title: Samples.data[0].name))
         }
-    }
-}
-
-extension ExecutionState: Identifiable {
-    public var id: String {
-        return UUID().uuidString
     }
 }
