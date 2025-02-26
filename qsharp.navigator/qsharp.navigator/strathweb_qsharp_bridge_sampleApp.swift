@@ -31,7 +31,6 @@ struct strathweb_qsharp_bridge_sampleApp: App {
         }
         print("App Resource Path: \(resourcePath)")
         
-        // Set up the local HTTP server
         strathweb_qsharp_bridge_sampleApp.webServer.addGETHandler(
             forBasePath: "/",
             directoryPath: resourcePath,

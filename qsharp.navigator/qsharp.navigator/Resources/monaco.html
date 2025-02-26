@@ -91,7 +91,6 @@
       return false;
     };
 
-    // Simple logger
     function logMessage(level, message) {
       console.log("[" + level.toUpperCase() + "] " + message);
       try {
@@ -102,7 +101,7 @@
       } catch (e) {}
     }
 
-    // Utility functions for conversion between Monaco and LS formats
+    // utility functions for conversion between Monaco and LS formats
     function monacoPositionToLsPosition(position) {
       return { line: position.lineNumber - 1, character: position.column - 1 };
     }

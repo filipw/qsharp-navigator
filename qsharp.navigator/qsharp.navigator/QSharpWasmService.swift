@@ -1,7 +1,6 @@
 import Foundation
 import WebKit
 
-// This class manages loading and integrating the Q# WebAssembly language service
 class QSharpWasmService {
     static let shared = QSharpWasmService()
     
@@ -71,16 +70,13 @@ class QSharpWasmService {
                 print("[ERROR] Error initializing language service: \(error.localizedDescription)")
                 completion(false, "Error initializing language service: \(error.localizedDescription)")
             }
-            // Final result is handled by the message handler.
         }
     }
     
-    // Create a message handler for initialization result
     func createInitializationHandler(completion: @escaping (Bool, String?) -> Void) -> WKScriptMessageHandler {
         return WasmServiceHandler(completion: completion)
     }
-    
-    // Helper class for handling WASM service initialization
+
     class WasmServiceHandler: NSObject, WKScriptMessageHandler {
         let completion: (Bool, String?) -> Void
         
