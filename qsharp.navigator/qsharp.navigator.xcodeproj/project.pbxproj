@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		F07F1B5E2D6E5A6500AA34D7 /* MonacoEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07F1B5D2D6E5A6500AA34D7 /* MonacoEditor.swift */; };
-		F07F1B672D6E5FFF00AA34D7 /* QSharpWasmLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07F1B662D6E5FFF00AA34D7 /* QSharpWasmLoader.swift */; };
 		F07F1B6B2D6E664500AA34D7 /* QSharpWasmService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07F1B6A2D6E664500AA34D7 /* QSharpWasmService.swift */; };
 		F07F1B722D6E67C800AA34D7 /* compiler-worker.js in Resources */ = {isa = PBXBuildFile; fileRef = F07F1B6E2D6E67C800AA34D7 /* compiler-worker.js */; };
 		F07F1B732D6E67C800AA34D7 /* language-service-worker.js in Resources */ = {isa = PBXBuildFile; fileRef = F07F1B6F2D6E67C800AA34D7 /* language-service-worker.js */; };
@@ -50,7 +49,6 @@
 
 /* Begin PBXFileReference section */
 		F07F1B5D2D6E5A6500AA34D7 /* MonacoEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonacoEditor.swift; sourceTree = "<group>"; };
-		F07F1B662D6E5FFF00AA34D7 /* QSharpWasmLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QSharpWasmLoader.swift; sourceTree = "<group>"; };
 		F07F1B682D6E62DE00AA34D7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F07F1B6A2D6E664500AA34D7 /* QSharpWasmService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QSharpWasmService.swift; sourceTree = "<group>"; };
 		F07F1B6E2D6E67C800AA34D7 /* compiler-worker.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "compiler-worker.js"; sourceTree = "<group>"; };
@@ -134,7 +132,6 @@
 			children = (
 				F07F1B6A2D6E664500AA34D7 /* QSharpWasmService.swift */,
 				F07F1B682D6E62DE00AA34D7 /* Info.plist */,
-				F07F1B662D6E5FFF00AA34D7 /* QSharpWasmLoader.swift */,
 				F07F1B642D6E5FD200AA34D7 /* Resources */,
 				F07F1B5D2D6E5A6500AA34D7 /* MonacoEditor.swift */,
 				F0F20F702B29FCFD000DEED9 /* qsharp_bridge.swift */,
@@ -263,7 +260,6 @@
 				F08988C32A7192D80062BB8E /* DifficultyView.swift in Sources */,
 				F0F20F7B2B2D921B000DEED9 /* CodeExampleModel.swift in Sources */,
 				F08988842A66E22E0062BB8E /* SinglePanelView.swift in Sources */,
-				F07F1B672D6E5FFF00AA34D7 /* QSharpWasmLoader.swift in Sources */,
 				F08CEBE62A651081003B3B88 /* strathweb_qsharp_bridge_sampleApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

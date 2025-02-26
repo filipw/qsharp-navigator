@@ -146,7 +146,7 @@ struct QSharpMonacoRepresentable: UIViewRepresentable {
             super.init()
         }
         
-        // Handle messages from JavaScript
+        // handle messages from JavaScript
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             switch message.name {
             case "codeChanged":
@@ -185,7 +185,6 @@ struct QSharpMonacoRepresentable: UIViewRepresentable {
                 print("✅ Editor is now ready")
                 self.editorReady = true
                 
-                // Set the initial content now that the editor is ready
                 if !self.initialText.isEmpty {
                     print("📤 Setting initial editor content, length: \(self.initialText.count)")
                     let escapedCode = self.parent.escapeCodeForJS(self.initialText)
@@ -199,7 +198,6 @@ struct QSharpMonacoRepresentable: UIViewRepresentable {
                 }
                 
             case "jsReady":
-                // JS environment signals that it's fully loaded
                 print("🌐 JS environment reported ready")
                 jsEnvironmentReady = true
                 
