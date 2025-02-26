@@ -58,7 +58,7 @@ struct strathweb_qsharp_bridge_sampleApp: App {
             return
         }
         
-        let wasmURL = serverURL.appendingPathComponent("qsc_wasm_bg.wasm")
+        let wasmURL = serverURL.appendingPathComponent("qsharp/qsc_wasm_bg.wasm")
         let lsWorkerURL = serverURL.appendingPathComponent("language-service-worker.js")
         let compilerWorkerURL = serverURL.appendingPathComponent("compiler-worker.js")
         

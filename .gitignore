@@ -1,5 +1,4 @@
 bindings/
-libs/
 qsharp-bridge/target
 qsharp-bridge/Cargo.lock
 
@@ -8,3 +7,4 @@ qsharp.navigator/qsharp.navigator.xcodeproj/project.xcworkspace/contents.xcworks
 qsharp.navigator/qsharp.navigator.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
 qsharp.navigator/qsharp.navigator.xcodeproj/xcuserdata/filipw.xcuserdatad/xcschemes/xcschememanagement.plist
 .DS_Store
+libs/qsharp_bridge_framework.xcframework
