@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Monaco Q# Editor</title>
+  <style>
+    html, body, #container {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      -webkit-text-size-adjust: 100%;
+    }
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #1e1e1e;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      z-index: 1000;
+    }
+    .loading-spinner {
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      border-top: 4px solid #ffffff;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loading-text {
+      font-size: 16px;
+    }
+  </style>
+
+  <script>
+    window.MonacoEnvironment = {
+      getWorkerUrl: function(workerId, label) {
+        console.log("getWorkerUrl called for workerId:", workerId, "label:", label);
+        const workerCode = `
+          self.MonacoEnvironment = {
+            baseUrl: 'http://localhost:8080/'
+          };
+          importScripts('http://localhost:8080/vs/base/worker/workerMain.js');
+        `;
+        const blob = new Blob([workerCode], { type: 'text/javascript' });
+        const blobUrl = URL.createObjectURL(blob);
+        console.log("Returning blob URL:", blobUrl);
+        return blobUrl;
+      }
+    };
+  </script>
+
+  <link rel="stylesheet" data-name="vs/editor/editor.main"
+        href="http://localhost:8080/vs/editor/editor.main.css"
+        crossorigin="anonymous">
+  <script src="http://localhost:8080/vs/loader.js"
+          crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="container"></div>
+  <div id="loading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading Q# Editor...</div>
+  </div>
+  
+  <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error("Global error caught:", message, source, lineno, colno, error);
+      try {
+        window.webkit.messageHandlers.logMessage.postMessage({
+          level: "error",
+          message: "Global error: " + message + " at " + source + ":" + lineno + ":" + colno
+        });
+      } catch (e) {}
+      return false;
+    };
+
+    function logMessage(level, message) {
+      console.log("[" + level.toUpperCase() + "] " + message);
+      try {
+        window.webkit.messageHandlers.logMessage.postMessage({
+          level: level,
+          message: message
+        });
+      } catch (e) {}
+    }
+
+    window.QSharpLanguageService = {
+      editor: null,
+      monaco: null,
+      isInitialized: false,
+      wasmModule: null,
+      languageService: null,
+
+      initialize: async function(wasmPath, lsWorkerPath, compilerWorkerPath) {
+        try {
+          logMessage("info", "Initializing Q# language service");
+          if (!window.monaco) {
+            await this.loadMonaco();
+          }
+          
+          logMessage("info", "Loading WASM module from: " + wasmPath);
+          
+          try {
+            // First check if required files are accessible
+            const wasmResponse = await fetch(wasmPath);
+            if (!wasmResponse.ok) {
+              throw new Error(`Failed to fetch WASM file: ${wasmResponse.status} ${wasmResponse.statusText}`);
+            }
+            logMessage("info", "WASM file fetch successful, status: " + wasmResponse.status);
+
+            const lsResponse = await fetch(lsWorkerPath);
+            logMessage("info", "Language service worker fetch status: " + lsResponse.status);
+            
+            const compilerResponse = await fetch(compilerWorkerPath);
+            logMessage("info", "Compiler worker fetch status: " + compilerResponse.status);
+
+            // Set up Monaco editor with the language service
+            this.setupQSharpLanguage();
+            this.setupQSharpMonacoIntegration();
+            
+            this.isInitialized = true;
+            logMessage("info", "Q# language service initialized successfully");
+            return true;
+          } catch (fetchError) {
+            logMessage("error", "Failed to fetch required files: " + fetchError.toString());
+            throw fetchError;
+          }
+        } catch (error) {
+          logMessage("error", "Failed to initialize Q# language service: " + error.toString());
+          throw error;
+        }
+      },
+
+      setupQSharpMonacoIntegration: function() {
+        try {
+          if (!this.monaco) {
+            logMessage("error", "Monaco not available for Q# integration");
+            return;
+          }
+          
+          logMessage("info", "Setting up Monaco-Q# integration");
+          
+          // Basic completion provider - the real completions would come from WASM
+          this.monaco.languages.registerCompletionItemProvider('qsharp', {
+            provideCompletionItems: function(model, position) {
+              logMessage("info", "Completion requested at " + position.lineNumber + ":" + position.column);
+              
+              // These are just basic completions for now
+              const suggestions = [
+                {
+                  label: 'namespace',
+                  kind: monaco.languages.CompletionItemKind.Keyword,
+                  insertText: 'namespace ${1:Name} {\n\t$0\n}',
+                  insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                  documentation: 'Define a new namespace'
+                },
+                {
+                  label: 'operation',
+                  kind: monaco.languages.CompletionItemKind.Keyword,
+                  insertText: 'operation ${1:Name}(${2:parameters}) : ${3:Result} {\n\t$0\n}',
+                  insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                  documentation: 'Define a new operation'
+                },
+                {
+                  label: 'function',
+                  kind: monaco.languages.CompletionItemKind.Keyword,
+                  insertText: 'function ${1:Name}(${2:parameters}) : ${3:Result} {\n\t$0\n}',
+                  insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                  documentation: 'Define a new function'
+                },
+                {
+                  label: 'open',
+                  kind: monaco.languages.CompletionItemKind.Keyword,
+                  insertText: 'open ${1:Namespace};',
+                  insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                  documentation: 'Import a namespace'
+                },
+                {
+                  label: 'Microsoft.Quantum.Intrinsic',
+                  kind: monaco.languages.CompletionItemKind.Module,
+                  insertText: 'Microsoft.Quantum.Intrinsic',
+                  documentation: 'Core quantum operations'
+                }
+              ];
+              
+              return { suggestions: suggestions };
+            }
+          });
+          
+          logMessage("info", "Monaco-Q# integration complete");
+        } catch (error) {
+          logMessage("error", "Failed to set up Monaco-Q# integration: " + error.toString());
+        }
+      },
+
+      loadMonaco: function() {
+        return new Promise((resolve, reject) => {
+          try {
+            require.config({
+              paths: { 'vs': 'http://localhost:8080/vs' }
+            });
+            
+            require(['vs/editor/editor.main'], () => {
+              console.log("Monaco editor modules loaded successfully.");
+              this.monaco = monaco;
+              this.setupQSharpLanguage();
+              this.createEditor();
+              document.getElementById('loading').style.display = 'none';
+              logMessage("info", "Monaco editor loaded successfully");
+              resolve();
+            });
+          } catch (error) {
+            console.error("Error loading Monaco:", error);
+            reject(error);
+          }
+        });
+      },
+
+      setupQSharpLanguage: function() {
+        monaco.languages.register({ id: 'qsharp' });
+        monaco.languages.setMonarchTokensProvider('qsharp', {
+          defaultToken: '',
+          tokenPostfix: '.qs',
+          keywords: [
+            'namespace', 'open', 'operation', 'function', 'body', 'adjoint', 'controlled',
+            'if', 'elif', 'else', 'repeat', 'until', 'for', 'in', 'return', 'fail',
+            'within', 'apply', 'using', 'borrow', 'use', 'let', 'mutable', 'set',
+            'new', 'not', 'and', 'or', 'true', 'false'
+          ],
+          typeKeywords: [
+            'Unit', 'Int', 'BigInt', 'Double', 'Bool', 'String', 'Qubit', 'Result',
+            'Range', 'Array', 'Pauli', 'Zero', 'One'
+          ],
+          symbols: /[=><!~?&|+\-*/^%]+/,
+          brackets: [
+            { open: '{', close: '}', token: 'delimiter.curly' },
+            { open: '[', close: ']', token: 'delimiter.square' },
+            { open: '(', close: ')', token: 'delimiter.parenthesis' },
+            { open: '<', close: '>', token: 'delimiter.angle' }
+          ],
+          tokenizer: {
+            root: [
+              [/\s+/, ''],
+              [/\/\/.*$/, 'comment'],
+              [/\/\*/, 'comment', '@comment'],
+              [/"([^"\\]|\\.)*$/, 'string.invalid'],
+              [/"/, 'string', '@string'],
+              [/[a-zA-Z_]\w*/, {
+                cases: {
+                  '@keywords': 'keyword',
+                  '@typeKeywords': 'type',
+                  '@default': 'identifier'
+                }
+              }],
+              [/\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
+              [/\d+/, 'number'],
+              [/[{}()\[\]]/, '@brackets'],
+              [/[<>](?!@symbols)/, '@brackets'],
+              [/[+\-*/=<>!&|^%]+/, 'operator']
+            ],
+            comment: [
+              [/[^/*]+/, 'comment'],
+              [/\/\*/, 'comment', '@push'],
+              [/\*\//, 'comment', '@pop'],
+              [/[/\*]/, 'comment']
+            ],
+            string: [
+              [/[^\\"]+/, 'string'],
+              [/\\./, 'string.escape'],
+              [/"/, 'string', '@pop']
+            ]
+          }
+        });
+      },
+
+      createEditor: function() {
+        logMessage("info", "Creating Monaco editor instance");
+        this.editor = monaco.editor.create(document.getElementById('container'), {
+          value: '', // Initial empty value, will be set from Swift
+          language: 'qsharp',
+          theme: 'vs-dark',
+          automaticLayout: true,
+          minimap: { enabled: true },
+          wordWrap: 'on',
+          fontSize: 14,
+          lineNumbers: 'on',
+          scrollBeyondLastLine: false,
+          renderLineHighlight: 'all',
+          tabSize: 4,
+          insertSpaces: true
+        });
+        
+        logMessage("info", "Setting up editor content change handler");
+        this.editor.onDidChangeModelContent(() => {
+          try {
+            const value = this.editor.getValue();
+            logMessage("debug", "Editor content changed, length: " + value.length);
+            window.webkit.messageHandlers.codeChanged.postMessage(value);
+          } catch (error) {
+            logMessage("error", "Error in content change handler: " + error.toString());
+          }
+        });
+        
+        this.editor.onDidChangeCursorPosition((e) => {
+          try {
+            window.webkit.messageHandlers.cursorPositionChanged.postMessage({
+              lineNumber: e.position.lineNumber,
+              column: e.position.column
+            });
+          } catch (error) {
+            logMessage("error", "Error in cursor position handler: " + error.toString());
+          }
+        });
+        
+        try {
+          window.webkit.messageHandlers.editorReady.postMessage({});
+          logMessage("info", "Sent editorReady message to Swift");
+        } catch (error) {
+          logMessage("error", "Error sending editorReady message: " + error.toString());
+        }
+      },
+      
+      updateEditorContent: function(text) {
+        logMessage("debug", "updateEditorContent called with text length: " + text.length);
+        
+        if (this.editor) {
+          const currentValue = this.editor.getValue();
+          if (currentValue !== text) {
+            logMessage("debug", "Updating editor content with: " + text.substring(0, 50) + "...");
+            this.editor.setValue(text);
+            return true;
+          } else {
+            logMessage("debug", "Content already matches, no update needed");
+          }
+          return false;
+        } else {
+          logMessage("error", "Editor not initialized when trying to update content");
+          return false;
+        }
+      },
+      
+      setEditorOptions: function(options) {
+        if (this.editor) {
+          logMessage("debug", "Updating editor options: " + JSON.stringify(options));
+          this.editor.updateOptions(options);
+          return true;
+        } else {
+          logMessage("error", "Editor not initialized when trying to update options");
+          return false;
+        }
+      },
+      
+      getEditorContent: function() {
+        if (this.editor) {
+          return this.editor.getValue();
+        }
+        return null;
+      }
+    };
+
+    // Global function to initialize the WASM service
+    function initializeWasmService(wasmUrl, lsWorkerUrl, compilerWorkerUrl) {
+      logMessage("info", "initializeWasmService called");
+      logMessage("info", "WASM URL: " + wasmUrl);
+      logMessage("info", "LS Worker URL: " + lsWorkerUrl);
+      logMessage("info", "Compiler Worker URL: " + compilerWorkerUrl);
+      
+      window.qscBasePath = wasmUrl.substring(0, wasmUrl.lastIndexOf('/') + 1);
+      window.qscWasmPath = wasmUrl;
+      window.languageServiceWorkerPath = lsWorkerUrl;
+      window.compilerWorkerPath = compilerWorkerUrl;
+      
+      if (window.QSharpLanguageService) {
+        return window.QSharpLanguageService.initialize(
+          window.qscWasmPath,
+          window.languageServiceWorkerPath,
+          window.compilerWorkerPath
+        ).then(function() {
+          window.webkit.messageHandlers.wasmServiceInitialized.postMessage({
+            success: true,
+            message: "WASM service initialized successfully"
+          });
+          return true;
+        }).catch(function(error) {
+          window.webkit.messageHandlers.wasmServiceInitialized.postMessage({
+            success: false,
+            message: error.toString()
+          });
+          return false;
+        });
+      } else {
+        window.webkit.messageHandlers.wasmServiceInitialized.postMessage({
+          success: false,
+          message: "QSharpLanguageService not found in the WebView"
+        });
+        return Promise.reject("QSharpLanguageService not found");
+      }
+    }
+    
+    // Global functions to expose the editor's methods
+    function updateEditorContent(text) {
+      logMessage("debug", "updateEditorContent global function called with text length: " + text.length);
+      if (window.QSharpLanguageService) {
+        return window.QSharpLanguageService.updateEditorContent(text);
+      } else {
+        logMessage("error", "QSharpLanguageService not available when updating content");
+        return false;
+      }
+    }
+    
+    function setEditorOptions(options) {
+      if (window.QSharpLanguageService) {
+        return window.QSharpLanguageService.setEditorOptions(options);
+      } else {
+        logMessage("error", "QSharpLanguageService not available when updating options");
+        return false;
+      }
+    }
+    
+    function getEditorContent() {
+      if (window.QSharpLanguageService) {
+        return window.QSharpLanguageService.getEditorContent();
+      }
+      return null;
+    }
+    
+    function debugEditorStatus() {
+      const status = {
+        editorExists: window.QSharpLanguageService && window.QSharpLanguageService.editor !== null,
+        monacoExists: typeof monaco !== 'undefined',
+        currentContent: getEditorContent(),
+        contentLength: getEditorContent() ? getEditorContent().length : 0
+      };
+      
+      logMessage("debug", "Editor status: " + JSON.stringify(status));
+      return status;
+    }
+    
+    window.initializeWasmService = initializeWasmService;
+    window.updateEditorContent = updateEditorContent;
+    window.setEditorOptions = setEditorOptions;
+    window.getEditorContent = getEditorContent;
+    window.debugEditorStatus = debugEditorStatus;
+
+    window.onload = function() {
+      logMessage("info", "Page fully loaded. JS environment is ready.");
+      try {
+        window.webkit.messageHandlers.jsReady.postMessage("ready");
+      } catch(e) {
+        console.warn("jsReady handler not available:", e);
+      }
+    };
+  </script>
+</body>
+</html>

@@ -28,9 +28,17 @@ struct SinglePanelView: View {
                             model.runShots()
                         }
                     }, label: {
-                        Image(systemName: "play.fill")
-                    }).padding()
-                        .foregroundColor(.accentColor)
+                        if model.isPlaying {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle())
+                                .foregroundColor(.accentColor)
+                        } else {
+                            Image(systemName: "play.fill")
+                                .foregroundColor(.accentColor)
+                        }
+                    })
+                    .padding()
+                    .disabled(model.isPlaying)
                 }
                 
                 Divider()

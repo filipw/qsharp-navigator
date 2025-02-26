@@ -22,14 +22,17 @@ class CodeExampleModel: ObservableObject {
     
     func runShots() {
         DispatchQueue.main.async {
+            self.isPlaying = true
             self.showResults = false
         }
         
         let results = try! runQsShots(source: code, shots: UInt32(shots))
-        print(results.count)
+        print("Results count: \(results.count)")
+        
         DispatchQueue.main.async {
             self.executionStates = results
             self.showResults = true
+            self.isPlaying = false
         }
     }
 }
