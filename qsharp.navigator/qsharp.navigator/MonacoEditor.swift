@@ -69,10 +69,8 @@ struct QSharpMonacoRepresentable: UIViewRepresentable {
         webView.navigationDelegate = context.coordinator
         webView.isInspectable = true
         
-        // Store the initial text in the coordinator
         context.coordinator.initialText = text
         
-        // WebView setup
         webView.scrollView.isScrollEnabled = true
         webView.scrollView.bounces = true
         webView.scrollView.showsHorizontalScrollIndicator = false
@@ -81,7 +79,6 @@ struct QSharpMonacoRepresentable: UIViewRepresentable {
         webView.scrollView.maximumZoomScale = 1.0
         webView.scrollView.minimumZoomScale = 1.0
 
-        // Load the main HTML page from the local HTTP server.
         if let serverURL = strathweb_qsharp_bridge_sampleApp.webServer.serverURL {
             let url = serverURL.appendingPathComponent("monaco.html")
             print("🔍 Loading Monaco editor from: \(url)")
@@ -201,32 +198,12 @@ struct QSharpMonacoRepresentable: UIViewRepresentable {
                 print("🌐 JS environment reported ready")
                 jsEnvironmentReady = true
                 
-                if QSharpWasmService.shared.isConfigured() {
-                    if let wasmURL = QSharpWasmService.shared.wasmURL,
-                       let lsWorkerURL = QSharpWasmService.shared.languageServiceWorkerURL,
-                       let compilerWorkerURL = QSharpWasmService.shared.compilerWorkerURL {
-                        
-                        print("🧩 Initializing WASM service")
-                        let initScript = "initializeWasmService('\(wasmURL.absoluteString)', '\(lsWorkerURL.absoluteString)', '\(compilerWorkerURL.absoluteString)');"
-                        message.webView?.evaluateJavaScript(initScript) { _, error in
-                            if let error = error {
-                                print("❌ Failed to initialize WASM service: \(error)")
-                            } else {
-                                print("✅ Called initializeWasmService from jsReady handler")
-                            }
-                        }
-                    }
-                } else {
-                    print("❌ QSharpWasmService is not configured")
-                }
-                
             default:
                 print("⚠️ Received unknown message: \(message.name)")
                 break
             }
         }
         
-        // Handle navigation events
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             print("🌐 WebView navigation finished")
         }
@@ -240,5 +217,3 @@ struct QSharpMonacoRepresentable: UIViewRepresentable {
         }
     }
 }
-
-typealias MonacoEditor = QSharpMonacoEditor

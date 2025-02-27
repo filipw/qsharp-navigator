@@ -43,10 +43,10 @@ struct SinglePanelView: View {
                 
                 Divider()
                 
-                MonacoEditor(
+                QSharpMonacoEditor(
                     text: $model.code,
                     position: $model.editorPosition,
-                    layout: MonacoEditor.LayoutConfiguration(
+                    layout: QSharpMonacoEditor.LayoutConfiguration(
                         showMinimap: model.showMinimap,
                         wrapText: model.wrapText
                     )

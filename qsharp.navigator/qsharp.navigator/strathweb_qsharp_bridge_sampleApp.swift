@@ -15,7 +15,6 @@ struct strathweb_qsharp_bridge_sampleApp: App {
     
     init() {
         startLocalHTTPServer()
-        configureWasmService()
     }
     
     var body: some Scene {
@@ -35,10 +34,10 @@ struct strathweb_qsharp_bridge_sampleApp: App {
             forBasePath: "/",
             directoryPath: resourcePath,
             indexFilename: "monaco.html",
-            cacheAge: 0, // Disable caching during development
+            cacheAge: 0,
             allowRangeRequests: true
         )
-
+        
         do {
             try strathweb_qsharp_bridge_sampleApp.webServer.start(options: [
                 GCDWebServerOption_Port: 8080,
@@ -48,26 +47,5 @@ struct strathweb_qsharp_bridge_sampleApp: App {
         } catch {
             print("ERROR: Could not start web server: \(error)")
         }
-    }
-    
-    func configureWasmService() {
-        guard let resourceURL = Bundle.main.resourceURL,
-              let serverURL = strathweb_qsharp_bridge_sampleApp.webServer.serverURL else {
-            print("ERROR: Missing resource or server URL")
-            return
-        }
-        
-        let wasmURL = serverURL.appendingPathComponent("qsharp/qsc_wasm_bg.wasm")
-        let lsWorkerURL = serverURL.appendingPathComponent("language-service-worker.js")
-        let compilerWorkerURL = serverURL.appendingPathComponent("compiler-worker.js")
-        
-        QSharpWasmService.shared.configure(
-            wasmURL: wasmURL,
-            languageServiceWorkerURL: lsWorkerURL,
-            compilerWorkerURL: compilerWorkerURL,
-            resourcesPath: resourceURL
-        )
-        
-        print("QSharpWasmService configured successfully")
     }
 }
