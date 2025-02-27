@@ -10,7 +10,7 @@
       "copy-resources": "node build/build.js --copy-resources",
       "setup-test": "node setup-test-env.js",
       "test-server": "npx http-server ./dist -p 8080",
-      "test": "npm run build && npm run setup-test && npm run test-server",
+      "test": "npm run build && npm run test-server",
       "clean": "rm -rf dist"
     },
     "keywords": ["monaco", "editor", "qsharp", "webassembly"],

@@ -1,30 +1,23 @@
-// Monaco Bundle Builder Build Script
 const { execSync } = require('child_process');
-const { copyFileSync, mkdirSync, readFileSync, writeFileSync, cpSync, existsSync } = require('fs');
-const { join, dirname, resolve } = require('path');
+const { copyFileSync, mkdirSync, existsSync, cpSync } = require('fs');
+const { join, resolve } = require('path');
 
-// Configuration
 const rootDir = resolve(__dirname, '..');
 const srcDir = join(rootDir, 'src');
 const distDir = join(rootDir, 'dist');
-const publicDir = join(rootDir, 'public');
 
-// CLI Arguments
 const args = process.argv.slice(2);
 const isDev = args.includes('--dev');
 const isWatch = args.includes('--watch');
 const isCopyResources = args.includes('--copy-resources');
 
-// Only copy resources if specified
 if (isCopyResources) {
   copyResources();
   process.exit(0);
 }
 
-// Ensure output directory exists
 mkdirSync(distDir, { recursive: true });
 
-// Build options
 const buildOptions = {
   entryPoints: [
     join(srcDir, 'index.ts'),
@@ -45,7 +38,6 @@ const buildOptions = {
   },
 };
 
-// Execute build using esbuild
 function buildBundle() {
   console.log(`Building bundle in ${isDev ? 'development' : 'production'} mode`);
   try {
@@ -55,7 +47,7 @@ function buildBundle() {
     
     console.log('Build completed successfully!');
     
-    copyFilesToOutput();
+    copyHtmlToOutput();
     
     copyResources();
   } catch (error) {
@@ -64,74 +56,70 @@ function buildBundle() {
   }
 }
 
-function copyFilesToOutput() {
-  const templatePath = join(publicDir, 'template.html');
-  const outputHtmlPath = join(distDir, 'monaco.html');
+function copyHtmlToOutput() {
+  // Copy monaco.html to the dist directory
+  const monacoHtmlSrc = join(rootDir, 'monaco.html');
+  const monacoHtmlDest = join(distDir, 'monaco.html');
   
-  if (existsSync(templatePath)) {
-    let templateContent = readFileSync(templatePath, 'utf8');
-    
-    templateContent = templateContent.replace(
-      'http://localhost:8080/index.js',
-      './index.js'
-    );
-    
-    writeFileSync(outputHtmlPath, templateContent);
-    console.log(`Copied and modified template to ${outputHtmlPath}`);
+  if (existsSync(monacoHtmlSrc)) {
+    copyFileSync(monacoHtmlSrc, monacoHtmlDest);
+    console.log(`Copied monaco.html to output directory`);
   } else {
-    console.warn(`Template file not found: ${templatePath}`);
-  }
-  
-  // Copy test HTML
-  const testHtmlSrc = join(rootDir, 'test.html');
-  const testHtmlDest = join(distDir, 'test.html');
-  copyFileSync(testHtmlSrc, testHtmlDest);
-  console.log(`Copied test.html to ${testHtmlDest}`);
-}
-
-function copyResources() {
-  console.log('Copying external resources...');
-  
-  const nodeModulesDir = join(rootDir, 'node_modules');
-  const monacoSrcDir = join(nodeModulesDir, 'monaco-editor', isDev ? 'dev' : 'min');
-  const monacoDestDir = join(distDir, 'vs');
-  
-  // Ensure destination directory exists
-  mkdirSync(monacoDestDir, { recursive: true });
-  
-  try {
-    // Copy Monaco resources
-    if (existsSync(join(monacoSrcDir, 'vs'))) {
-      cpSync(join(monacoSrcDir, 'vs'), monacoDestDir, { recursive: true });
-      console.log('Monaco resources copied successfully');
-    } else {
-      console.error(`Monaco source directory not found: ${join(monacoSrcDir, 'vs')}`);
-    }
-    
-    // Copy Q# WASM files if available
-    const qsharpWasmDir = join(nodeModulesDir, 'qsharp-lang', 'lib', 'web');
-    const qsharpDestDir = join(distDir, 'qsharp');
-    
-    if (existsSync(qsharpWasmDir)) {
-      mkdirSync(qsharpDestDir, { recursive: true });
-      
-      if (existsSync(join(qsharpWasmDir, 'qsc_wasm_bg.wasm'))) {
-        copyFileSync(
-          join(qsharpWasmDir, 'qsc_wasm_bg.wasm'),
-          join(qsharpDestDir, 'qsc_wasm_bg.wasm')
-        );
-        console.log('Q# WASM file copied successfully');
-      } else {
-        console.warn('Q# WASM file not found');
-      }
-    } else {
-      console.warn(`Q# WASM directory not found: ${qsharpWasmDir}`);
-    }
-  } catch (error) {
-    console.error('Error copying resources:', error);
+    console.error(`monaco.html file not found: ${monacoHtmlSrc}`);
     process.exit(1);
   }
 }
+
+function copyResources() {
+    console.log('Copying external resources...');
+    
+    const nodeModulesDir = join(rootDir, 'node_modules');
+    const monacoSrcDir = join(nodeModulesDir, 'monaco-editor', isDev ? 'dev' : 'min');
+    const monacoDestDir = join(distDir, 'vs');
+    
+    mkdirSync(monacoDestDir, { recursive: true });
+    
+    try {
+      if (existsSync(join(monacoSrcDir, 'vs'))) {
+        cpSync(join(monacoSrcDir, 'vs'), monacoDestDir, { recursive: true });
+        console.log('Monaco resources copied successfully');
+      } else {
+        console.error(`Monaco source directory not found: ${join(monacoSrcDir, 'vs')}`);
+      }
+      
+      const monacoMapsSrc = join(nodeModulesDir, 'monaco-editor', 'min-maps');
+      const mapsDestDir = join(distDir, 'min-maps');
+      
+      if (existsSync(monacoMapsSrc)) {
+        cpSync(monacoMapsSrc, mapsDestDir, { recursive: true });
+        console.log('Monaco source maps copied successfully');
+      } else {
+        console.warn(`Monaco source maps directory not found: ${monacoMapsSrc}`);
+      }
+      
+      const qsharpWasmDir = join(nodeModulesDir, 'qsharp-lang', 'lib', 'web');
+      const qsharpDestDir = join(distDir, 'qsharp');
+      
+      if (existsSync(qsharpWasmDir)) {
+        mkdirSync(qsharpDestDir, { recursive: true });
+        
+        if (existsSync(join(qsharpWasmDir, 'qsc_wasm_bg.wasm'))) {
+          copyFileSync(
+            join(qsharpWasmDir, 'qsc_wasm_bg.wasm'),
+            join(qsharpDestDir, 'qsc_wasm_bg.wasm')
+          );
+          console.log('Q# WASM file copied successfully');
+        } else {
+          console.warn('Q# WASM file not found');
+        }
+      } else {
+        console.warn(`Q# WASM directory not found: ${qsharpWasmDir}`);
+      }
+    } catch (error) {
+      console.error('Error copying resources:', error);
+      process.exit(1);
+    }
+  }
 
 if (isWatch) {
   console.log('Starting watch mode...');
