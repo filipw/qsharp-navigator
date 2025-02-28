@@ -22,103 +22,28 @@ struct SampleGroup: Identifiable {
 }
 
 struct Samples {
+    static func loadSampleFile(name: String) -> String {
+        guard let fileURL = Bundle.main.url(forResource: "Samples/\(name)", withExtension: nil) else {
+            print("Error: Could not find file \(name)")
+            return ""
+        }
+        
+        do {
+            let code = try String(contentsOf: fileURL, encoding: .utf8)
+            return code
+        } catch {
+            print("Error loading file \(name): \(error.localizedDescription)")
+            return ""
+        }
+    }
+    
     static let data = [
         SampleGroup(name: "Quantum Computing 101", subtitle: "Basic examples to get you going with quantum programming", samples: [
-            Sample(name: "basic.qs", code: """
-    namespace MyQuantumApp {
-        @EntryPoint()
-            operation Main() : Unit {
-            Message("Hello");
-        }
-    }
-    """, difficulty: 1),
+            Sample(name: "basic.qs", code: loadSampleFile(name: "basic.qs"), difficulty: 1),
         ]),
         SampleGroup(name: "Entanglement", subtitle: "Dive deep into spooky action at a distance", samples: [
-            Sample(name: "entanglement.qs", code: """
-    namespace Demos {
-
-        open Microsoft.Quantum.Intrinsic;
-        open Microsoft.Quantum.Measurement;
-        open Microsoft.Quantum.Diagnostics;
-
-        @EntryPoint()
-        operation Run() : (Result, Result) {
-            use (control, target) = (Qubit(), Qubit());
-
-            H(control);
-            CNOT(control, target);
-            
-            DumpMachine();
-
-            let resultControl = MResetZ(control);
-            let resultTarget = MResetZ(target);
-            return (resultControl, resultTarget);
-        }
-    }
-    """, difficulty: 1),
-            Sample(name: "teleportation.qs", code: """
-    namespace teleportation {
-
-        open Microsoft.Quantum.Arrays;
-        open Microsoft.Quantum.Canon;
-        open Microsoft.Quantum.Convert;
-        open Microsoft.Quantum.Intrinsic;
-        open Microsoft.Quantum.Math;
-        open Microsoft.Quantum.Measurement;
-        open Microsoft.Quantum.Random;
-
-        @EntryPoint()
-        operation Start() : Bool {
-            use (message, resource, target) = (Qubit(), Qubit(), Qubit());
-            PrepareState(message);
-
-            Teleport(message, resource, target);
-            Adjoint PrepareState(target);
-            let outcome = M(target) == Zero;
-            Message($"Teleported: {outcome}");
-            return outcome;
-        }
-
-        operation Teleport(message : Qubit, resource : Qubit, target : Qubit) : Unit {
-            // create entanglement between resource and target
-            H(resource);
-            CNOT(resource, target);
-
-            // reverse Bell circuit on message and resource
-            CNOT(message, resource);
-            H(message);
-
-            // mesaure message and resource
-            let messageResult = MResetZ(message) == One;
-            let resourceResult = MResetZ(resource) == One;
-
-            // and decode state
-            DecodeTeleportedState(messageResult, resourceResult, target);
-        }
-
-        operation PrepareState(q : Qubit) : Unit is Adj + Ctl {
-            Rx(1. * PI() / 2., q);
-            Ry(2. * PI() / 3., q);
-            Rz(3. * PI() / 4., q);
-        }
-
-        operation DecodeTeleportedState(messageResult : Bool, resourceResult : Bool, target : Qubit) : Unit {
-            if not messageResult and not resourceResult {
-                I(target);
-            }
-            if not messageResult and resourceResult {
-                X(target);
-            }
-            if messageResult and not resourceResult {
-                Z(target);
-            }
-            if messageResult and resourceResult {
-                Z(target);
-                X(target);
-            }
-        }
-    }
-    """, difficulty: 3)
+            Sample(name: "entanglement.qs", code: loadSampleFile(name: "entanglement.qs"), difficulty: 1),
+            Sample(name: "teleportation.qs", code: loadSampleFile(name: "teleportation.qs"), difficulty: 3)
         ])
     ]
 }
