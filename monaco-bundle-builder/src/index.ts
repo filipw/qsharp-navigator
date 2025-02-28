@@ -1,11 +1,9 @@
 import "./wasmLoader";
 
-// Define fixed paths instead of passing them as parameters
 const WASM_URL = './qsharp/qsc_wasm_bg.wasm';
 const LS_WORKER_PATH = './language-service-worker.js';
 const COMPILER_WORKER_PATH = './compiler-worker.js';
 
-// Global error handler
 window.onerror = function(message, source, lineno, colno, error) {
   console.error("Global error caught:", message, source, lineno, colno, error);
   try {
@@ -17,7 +15,48 @@ window.onerror = function(message, source, lineno, colno, error) {
   return false;
 };
 
-// Logger helper
+function VSDiagsToMarkers(errors) {
+  return errors.map((err) => {
+    let severity = monaco.MarkerSeverity.Error;
+    switch (err.severity) {
+      case "error":
+        severity = monaco.MarkerSeverity.Error;
+        break;
+      case "warning":
+        severity = monaco.MarkerSeverity.Warning;
+        break;
+      case "info":
+        severity = monaco.MarkerSeverity.Info;
+        break;
+    }
+
+    const marker = {
+      ...lsRangeToMonacoRange(err.range),
+      severity,
+      message: err.message,
+      relatedInformation: err.related?.map((r) => {
+        const range = lsRangeToMonacoRange(r.location.span);
+        return {
+          resource: monaco.Uri.parse(r.location.source),
+          message: r.message,
+          ...range,
+        };
+      }),
+    };
+
+    if (err.uri && err.code) {
+      marker.code = {
+        value: err.code,
+        target: monaco.Uri.parse(err.uri),
+      };
+    } else if (err.code) {
+      marker.code = err.code;
+    }
+
+    return marker;
+  });
+}
+
 function logMessage(level, message) {
   console.log("[" + level.toUpperCase() + "] " + message);
   try {
@@ -28,7 +67,6 @@ function logMessage(level, message) {
   } catch (e) {}
 }
 
-// Position conversion helpers
 function monacoPositionToLsPosition(position) {
   return { line: position.lineNumber - 1, character: position.column - 1 };
 }
@@ -48,6 +86,8 @@ const QSharpLanguageService = {
   editor: null,
   monaco: null,
   isInitialized: false,
+  currentDiagnostics: [],
+  diagnosticsHandler: null,
   
   initialize: async function() {
     try {
@@ -86,6 +126,9 @@ const QSharpLanguageService = {
       
       this.registerMonacoProviders();
       this.createEditor();
+
+      this.currentDiagnostics = [];
+      this.setupDiagnosticsHandler();
       
       this.isInitialized = true;
       logMessage("info", "Q# language service initialized successfully");
@@ -204,6 +247,57 @@ const QSharpLanguageService = {
     });
     
     logMessage("info", "Q# language registered with Monaco");
+  },
+
+  setupDiagnosticsHandler: function() {
+    logMessage("info", "Setting up diagnostics handler");
+    
+    if (!window.qsharpLanguageService) {
+      logMessage("error", "Language service not available for diagnostics setup");
+      return;
+    }
+    
+    this.currentDiagnostics = [];
+    
+    const onDiagnostics = (evt) => {
+      try {
+        logMessage("info", "Received diagnostics event");
+        
+        const diagnostics = evt.detail.diagnostics;
+        this.currentDiagnostics = diagnostics;
+        
+        this.markErrors();
+        
+      } catch (error) {
+        logMessage("error", "Error handling diagnostics event: " + error.toString());
+      }
+    };
+    
+    // Add the event listener
+    window.qsharpLanguageService.addEventListener("diagnostics", onDiagnostics);
+    
+    // Store the handler so we can remove it later if needed
+    this.diagnosticsHandler = onDiagnostics;
+    
+    logMessage("info", "Diagnostics handler set up successfully");
+  },
+  
+  // Add this method to update markers in the editor
+  markErrors: function() {
+    logMessage("info", "Marking errors in editor");
+    
+    if (!this.editor || !this.currentDiagnostics) return;
+    
+    const model = this.editor.getModel();
+    if (!model) return;
+    
+    // Convert diagnostics to markers
+    const markers = VSDiagsToMarkers(this.currentDiagnostics);
+    
+    // Set markers on the model
+    monaco.editor.setModelMarkers(model, "qsharp", markers);
+    
+    logMessage("info", `Set ${markers.length} error markers in editor`);
   },
   
   registerMonacoProviders: function() {
