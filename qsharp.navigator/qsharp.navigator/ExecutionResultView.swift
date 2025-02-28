@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Qsharp_Bridge
 
 struct ExecutionResultView: View {
     @State var currentIndex = 1

@@ -1,4 +1,5 @@
 import Foundation
+import Qsharp_Bridge
 import SwiftUI
 
 class CodeExampleModel: ObservableObject {
@@ -26,7 +27,8 @@ class CodeExampleModel: ObservableObject {
             self.showResults = false
         }
         
-        let results = try! runQsShots(source: code, shots: UInt32(shots))
+        let options = ExecutionOptions.fromShots(shots: UInt32(shots))
+        let results = try! runQsWithOptions(source: code, options: options)
         print("Results count: \(results.count)")
         
         DispatchQueue.main.async {
