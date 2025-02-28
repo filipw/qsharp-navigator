@@ -42,21 +42,6 @@
     .loading-text {
       font-size: 16px;
     }
-    .controls {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 100;
-      background: rgba(0,0,0,0.7);
-      padding: 10px;
-      border-radius: 5px;
-      color: white;
-    }
-    button {
-      padding: 8px 12px;
-      margin: 5px;
-      cursor: pointer;
-    }
   </style>
   <link rel="stylesheet" href="vs/editor/editor.main.css">
 </head>
@@ -65,9 +50,6 @@
   <div id="loading" class="loading-overlay">
     <div class="loading-spinner"></div>
     <div class="loading-text">Loading Q# Editor...</div>
-  </div>
-  <div class="controls">
-    <button onclick="console.log(getEditorContent())">Log Content</button>
   </div>
   <script src="vs/loader.js"></script>
   <script src="index.js"></script>

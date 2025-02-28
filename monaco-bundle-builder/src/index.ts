@@ -98,11 +98,11 @@ const QSharpLanguageService = {
         });
       } catch (e) {
         logMessage("error", "Failed to notify Swift of successful initialization");
+
+        // Set initial sample code
+        const sampleCode = 'namespace Quantum.Sample {\n open Microsoft.Quantum.Intrinsic;\n open Microsoft.Quantum.Canon;\n\n operation HelloQ() : Unit {\n Message("Hello quantum world!");\n }\n}';
+        this.updateEditorContent(sampleCode);
       }
-      
-      // Set initial sample code
-      const sampleCode = 'namespace Quantum.Sample {\n open Microsoft.Quantum.Intrinsic;\n open Microsoft.Quantum.Canon;\n\n operation HelloQ() : Unit {\n Message("Hello quantum world!");\n }\n}';
-      this.updateEditorContent(sampleCode);
       
       return true;
     } catch (error) {
