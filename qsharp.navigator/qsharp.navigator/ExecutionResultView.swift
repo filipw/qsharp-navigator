@@ -14,7 +14,14 @@ struct ExecutionResultView: View {
     
     var body: some View {
         VStack {
-                Label("Results", systemImage: "list.clipboard").font(.headline).padding()
+            HStack {
+                Spacer()
+                Label("Results", systemImage: "list.clipboard")
+                    .font(.headline)
+                Spacer()
+            }
+            .padding(.top)
+            
             HStack {
                 Spacer()
                 Button(action: {
@@ -41,12 +48,13 @@ struct ExecutionResultView: View {
                 .disabled(currentIndex == executionStates.count)
                 Spacer()
             }
+            .padding(.top, 5)
             
             Divider().padding(.leading, 50).padding(.trailing, 50)
             if executionStates.indices.contains(currentIndex - 1) {
                 SingleShotView(executionState: executionStates[currentIndex - 1])
             }
-        }
+        }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top).padding(.top)
     }
     
     func getShotCaption() -> String {

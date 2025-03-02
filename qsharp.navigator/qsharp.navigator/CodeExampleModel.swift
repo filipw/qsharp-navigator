@@ -9,6 +9,7 @@ class CodeExampleModel: ObservableObject {
     @Published var shots = 1.0
     @Published var isEditing = false
     @Published var showResults = false
+    @Published var showResultsSheet = false
     @Published var editorPosition = EditorPosition()
     @Published var showMinimap = false
     @Published var wrapText = true
@@ -34,8 +35,13 @@ class CodeExampleModel: ObservableObject {
         DispatchQueue.main.async {
             self.executionStates = results
             self.showResults = true
+            self.showResultsSheet = true
             self.isPlaying = false
         }
+    }
+    
+    var hasResults: Bool {
+        return !executionStates.isEmpty && showResults
     }
 }
 
