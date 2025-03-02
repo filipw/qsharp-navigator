@@ -10,7 +10,7 @@ class CodeExampleModel: ObservableObject {
     @Published var isEditing = false
     @Published var showResults = false
     @Published var editorPosition = EditorPosition()
-    @Published var showMinimap = true
+    @Published var showMinimap = false
     @Published var wrapText = true
     @Published var isPlaying = false
     

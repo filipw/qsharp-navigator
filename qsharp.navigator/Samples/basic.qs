@@ -1,6 +1,3 @@
-namespace MyQuantumApp {
-    @EntryPoint()
-        operation Main() : Unit {
-        Message("Hello");
-    }
+operation Main() : Unit {
+    Message("Hello");
 }

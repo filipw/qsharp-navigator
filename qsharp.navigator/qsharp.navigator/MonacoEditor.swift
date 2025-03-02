@@ -31,7 +31,7 @@ struct QSharpMonacoEditor: View {
         var showMinimap: Bool
         var wrapText: Bool
         
-        init(showMinimap: Bool = true, wrapText: Bool = true) {
+        init(showMinimap: Bool = false, wrapText: Bool = true) {
             self.showMinimap = showMinimap
             self.wrapText = wrapText
         }
