@@ -14,6 +14,10 @@ struct MainView: View {
                 .tabItem {
                     Label("Explore", systemImage: "house")
                 }
+            ResourcesView()
+                .tabItem {
+                    Label("Resources", systemImage: "books.vertical")
+                }
         }
         //.accentColor(Color("MainColor"))
     }

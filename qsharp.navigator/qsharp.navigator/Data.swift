@@ -47,3 +47,91 @@ struct Samples {
         ])
     ]
 }
+struct LearningResource: Identifiable {
+    let id = UUID()
+    let name: String
+    let authors: String
+    let description: String
+    let link: String
+}
+
+struct LearningResourceGroup: Identifiable {
+    let id = UUID()
+    let name: String
+    let subtitle: String
+    let resources: [LearningResource]
+}
+
+struct LearningResources {
+    static let data = [
+        LearningResourceGroup(
+            name: "General QC Books",
+            subtitle: "Essential reading materials for quantum computing",
+            resources: [
+                LearningResource(
+                    name: "Quantum Computation and Quantum Information",
+                    authors: "Nielsen M, Chuang I.",
+                    description: "Nielsen & Chuang’s seminal textbook that lays the groundwork for quantum computing.",
+                    link: "https://www.example.com/quantum-computation-and-quantum-information"
+                ),
+                LearningResource(
+                    name: "Quantum Computing: An Applied Approach",
+                    authors: "Foo A., Bar Z.",
+                    description: "A practical introduction to quantum computing concepts with real-world examples.",
+                    link: "https://www.example.com/quantum-computing-an-applied-approach"
+                )
+            ]
+        ),
+        
+        LearningResourceGroup(
+            name: "Q# Books",
+            subtitle: "Books focusing on Q#",
+            resources: [
+                LearningResource(
+                    name: "Introduction to Quantum Computing with Q# and QDK",
+                    authors: "Wojcieszyn F.",
+                    description: "A practical introduction to Q# and quantum computing",
+                    link: "https://www.example.com/quantum-computation-and-quantum-information"
+                ),
+                LearningResource(
+                    name: "Q#: An Applied Approach",
+                    authors: "Foo B.",
+                    description: "A practical introduction to quantum computing concepts with real-world examples.",
+                    link: "https://www.example.com/quantum-computing-an-applied-approach"
+                )
+            ]
+        ),
+        
+        LearningResourceGroup(
+            name: "Documentation",
+            subtitle: "Official guides, API references, and manuals",
+            resources: [
+                LearningResource(
+                    name: "Q# Documentation",
+                    authors: "Microsoft",
+                    description: "The official documentation for Q#, including tutorials, samples, and API references.",
+                    link: "https://docs.microsoft.com/quantum/"
+                )
+            ]
+        ),
+        
+        LearningResourceGroup(
+            name: "Research Papers",
+            subtitle: "Cutting-edge research and studies in quantum computing",
+            resources: [
+                LearningResource(
+                    name: "Q#: Enabling scalable quantum computing and development with a high-level domain-specific language",
+                    authors: "Svore K et al.",
+                    description: "Q# introductory paper",
+                    link: "http://arxiv.org/abs/1803.00652"
+                ),
+                LearningResource(
+                    name: "Shor's Algorithm",
+                    authors: "Shor P.",
+                    description: "The original paper outlining the quantum algorithm for integer factorization.",
+                    link: "https://www.example.com/shors-algorithm"
+                )
+            ]
+        ),
+    ]
+}
