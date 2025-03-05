@@ -45,6 +45,7 @@ struct SinglePanelView: View {
             QSharpMonacoEditor(
                 text: $model.code,
                 position: $model.editorPosition,
+                diagnostics: $model.diagnostics,
                 layout: QSharpMonacoEditor.LayoutConfiguration(
                     showMinimap: model.showMinimap,
                     wrapText: model.wrapText
@@ -56,6 +57,8 @@ struct SinglePanelView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
+                        Spacer()
+                        
                         Button(action: {
                             model.showResultsSheet = true
                         }) {
@@ -63,14 +66,25 @@ struct SinglePanelView: View {
                                 .foregroundColor(model.hasResults ? .accentColor : .gray)
                         }
                         .disabled(!model.hasResults)
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            model.showDiagnosticsSheet = true
+                        }) {
+                            Label {
+                                Text("Diagnostics")
+                            } icon: {
+                                Image(systemName: model.hasErrors ? "exclamationmark.triangle.fill" : "exclamationmark.triangle")
+                                    .foregroundColor(model.hasDiagnostics ? (model.hasErrors ? .red : .orange) : .gray)
+                            }
+                        }
+                        .disabled(!model.hasDiagnostics)
+                        
                         Spacer()
                     }
                     .padding(.bottom, 5)
                 }
-                
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .foregroundColor(.gray)
             }
             .padding()
         }
@@ -85,6 +99,17 @@ struct SinglePanelView: View {
                         }
                     }
                 }.presentationDetents([.medium, .large])
+        }
+        .sheet(isPresented: $model.showDiagnosticsSheet) {
+            DiagnosticsView(diagnostics: $model.diagnostics)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Done") {
+                            model.showDiagnosticsSheet = false
+                        }
+                    }
+                }
+                .presentationDetents([.medium, .large])
         }
     }
 }

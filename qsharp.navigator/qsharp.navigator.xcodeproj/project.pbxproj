@@ -20,6 +20,8 @@
 		F07F22052D718E9C00AA34D7 /* Qsharp.Bridge in Frameworks */ = {isa = PBXBuildFile; productRef = F07F22042D718E9C00AA34D7 /* Qsharp.Bridge */; };
 		F07F22182D72537E00AA34D7 /* Samples in Resources */ = {isa = PBXBuildFile; fileRef = F07F22172D72537E00AA34D7 /* Samples */; };
 		F07F221A2D7588AC00AA34D7 /* ResourcesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07F22192D7588A400AA34D7 /* ResourcesView.swift */; };
+		F07F221C2D782AC100AA34D7 /* DiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07F221B2D782AC100AA34D7 /* DiagnosticsView.swift */; };
+		F07F221E2D78B3FC00AA34D7 /* EditorDiagnostic.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07F221D2D78B3FC00AA34D7 /* EditorDiagnostic.swift */; };
 		F08988842A66E22E0062BB8E /* SinglePanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08988832A66E22E0062BB8E /* SinglePanelView.swift */; };
 		F08988862A66E2F50062BB8E /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08988852A66E2F50062BB8E /* Data.swift */; };
 		F08988882A671E170062BB8E /* ExecutionResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08988872A671E170062BB8E /* ExecutionResultView.swift */; };
@@ -58,6 +60,8 @@
 		F07F21FA2D70EA6300AA34D7 /* vs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = vs; path = "../monaco-bundle-builder/dist/vs"; sourceTree = "<group>"; };
 		F07F22172D72537E00AA34D7 /* Samples */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Samples; sourceTree = "<group>"; };
 		F07F22192D7588A400AA34D7 /* ResourcesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourcesView.swift; sourceTree = "<group>"; };
+		F07F221B2D782AC100AA34D7 /* DiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsView.swift; sourceTree = "<group>"; };
+		F07F221D2D78B3FC00AA34D7 /* EditorDiagnostic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorDiagnostic.swift; sourceTree = "<group>"; };
 		F08988832A66E22E0062BB8E /* SinglePanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinglePanelView.swift; sourceTree = "<group>"; };
 		F08988852A66E2F50062BB8E /* Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
 		F08988872A671E170062BB8E /* ExecutionResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecutionResultView.swift; sourceTree = "<group>"; };
@@ -113,9 +117,11 @@
 		F08CEBE42A651081003B3B88 /* qsharp.navigator */ = {
 			isa = PBXGroup;
 			children = (
+				F07F221B2D782AC100AA34D7 /* DiagnosticsView.swift */,
 				F07F22192D7588A400AA34D7 /* ResourcesView.swift */,
 				F07F1B682D6E62DE00AA34D7 /* Info.plist */,
 				F07F1B5D2D6E5A6500AA34D7 /* MonacoEditor.swift */,
+				F07F221D2D78B3FC00AA34D7 /* EditorDiagnostic.swift */,
 				F08CEBE52A651081003B3B88 /* strathweb_qsharp_bridge_sampleApp.swift */,
 				F08CEBE72A651081003B3B88 /* ExploreView.swift */,
 				F08CEBE92A651081003B3B88 /* Assets.xcassets */,
@@ -234,6 +240,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F08988882A671E170062BB8E /* ExecutionResultView.swift in Sources */,
+				F07F221E2D78B3FC00AA34D7 /* EditorDiagnostic.swift in Sources */,
 				F07F1B5E2D6E5A6500AA34D7 /* MonacoEditor.swift in Sources */,
 				F08988C12A718FF30062BB8E /* MainView.swift in Sources */,
 				F08CEBE82A651081003B3B88 /* ExploreView.swift in Sources */,
@@ -242,6 +249,7 @@
 				F08988C32A7192D80062BB8E /* DifficultyView.swift in Sources */,
 				F0F20F7B2B2D921B000DEED9 /* CodeExampleModel.swift in Sources */,
 				F08988842A66E22E0062BB8E /* SinglePanelView.swift in Sources */,
+				F07F221C2D782AC100AA34D7 /* DiagnosticsView.swift in Sources */,
 				F08CEBE62A651081003B3B88 /* strathweb_qsharp_bridge_sampleApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

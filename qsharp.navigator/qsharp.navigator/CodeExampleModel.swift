@@ -16,6 +16,9 @@ class CodeExampleModel: ObservableObject {
     @Published var isPlaying = false
     
     @Published var executionStates: [ExecutionState] = []
+    @Published var diagnostics: [EditorDiagnostic] = []
+    @Published var showDiagnostics = true
+    @Published var showDiagnosticsSheet = false
     
     init(code: String, title: String) {
         self.code = code
@@ -42,6 +45,18 @@ class CodeExampleModel: ObservableObject {
     
     var hasResults: Bool {
         return !executionStates.isEmpty && showResults
+    }
+    
+    var hasDiagnostics: Bool {
+        return !diagnostics.isEmpty
+    }
+    
+    var hasErrors: Bool {
+        return diagnostics.contains { $0.severity == .error }
+    }
+    
+    var hasWarnings: Bool {
+        return diagnostics.contains { $0.severity == .warning }
     }
 }
 

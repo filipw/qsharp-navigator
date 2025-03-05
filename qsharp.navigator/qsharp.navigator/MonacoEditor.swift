@@ -9,14 +9,32 @@ struct EditorPosition {
 struct QSharpMonacoEditor: View {
     @Binding var text: String
     @Binding var position: EditorPosition
+    @Binding var diagnostics: [EditorDiagnostic]
     var layout: MonacoLayout
     
     var onCodeExecuted: ((String) -> Void)? = nil
+    
+    init(text: Binding<String>, position: Binding<EditorPosition>, layout: MonacoLayout, onCodeExecuted: ((String) -> Void)? = nil) {
+        self._text = text
+        self._position = position
+        self._diagnostics = .constant([])
+        self.layout = layout
+        self.onCodeExecuted = onCodeExecuted
+    }
+    
+    init(text: Binding<String>, position: Binding<EditorPosition>, diagnostics: Binding<[EditorDiagnostic]>, layout: MonacoLayout, onCodeExecuted: ((String) -> Void)? = nil) {
+        self._text = text
+        self._position = position
+        self._diagnostics = diagnostics
+        self.layout = layout
+        self.onCodeExecuted = onCodeExecuted
+    }
     
     var body: some View {
         QSharpMonacoRepresentable(
             text: $text,
             position: $position,
+            diagnostics: $diagnostics,
             showMinimap: layout.showMinimap,
             wrapText: layout.wrapText
         )
@@ -45,18 +63,17 @@ extension QSharpMonacoEditor {
 struct QSharpMonacoRepresentable: UIViewRepresentable {
     @Binding var text: String
     @Binding var position: EditorPosition
+    @Binding var diagnostics: [EditorDiagnostic]
     var showMinimap: Bool
     var wrapText: Bool
-
+    
     func makeUIView(context: Context) -> WKWebView {
         print("🔍 makeUIView called with initial text: \(text.prefix(20))... (length: \(text.count))")
         
         let preferences = WKWebpagePreferences()
         preferences.allowsContentJavaScript = true
-
         let configuration = WKWebViewConfiguration()
         configuration.defaultWebpagePreferences = preferences
-
         // Add message handlers
         configuration.userContentController.add(context.coordinator, name: "codeChanged")
         configuration.userContentController.add(context.coordinator, name: "cursorPositionChanged")
@@ -64,6 +81,7 @@ struct QSharpMonacoRepresentable: UIViewRepresentable {
         configuration.userContentController.add(context.coordinator, name: "wasmServiceInitialized")
         configuration.userContentController.add(context.coordinator, name: "jsReady")
         configuration.userContentController.add(context.coordinator, name: "editorReady")
+        configuration.userContentController.add(context.coordinator, name: "diagnosticsChanged")
         
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = context.coordinator
@@ -78,7 +96,6 @@ struct QSharpMonacoRepresentable: UIViewRepresentable {
         webView.scrollView.bouncesZoom = false
         webView.scrollView.maximumZoomScale = 1.0
         webView.scrollView.minimumZoomScale = 1.0
-
         if let serverURL = strathweb_qsharp_bridge_sampleApp.webServer.serverURL {
             let url = serverURL.appendingPathComponent("monaco.html")
             print("🔍 Loading Monaco editor from: \(url)")
@@ -130,7 +147,7 @@ struct QSharpMonacoRepresentable: UIViewRepresentable {
                    .replacingOccurrences(of: "\r", with: "\\r")
                    .replacingOccurrences(of: "\t", with: "\\t")
     }
-
+    
     class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         var parent: QSharpMonacoRepresentable
         var lastReceivedCode: String = ""
@@ -161,6 +178,50 @@ struct QSharpMonacoRepresentable: UIViewRepresentable {
                    let column = positionData["column"] {
                     DispatchQueue.main.async {
                         self.parent.position = EditorPosition(line: line, column: column)
+                    }
+                }
+                
+            case "diagnosticsChanged":
+                if let diagnosticsArray = message.body as? [[String: Any]] {
+                    print("📝 Received \(diagnosticsArray.count) diagnostics from editor")
+                    let parsedDiagnostics = diagnosticsArray.compactMap { diagInfo -> EditorDiagnostic? in
+                        guard let message = diagInfo["message"] as? String,
+                              let severityStr = diagInfo["severity"] as? String,
+                              let lineNumber = diagInfo["lineNumber"] as? Int,
+                              let column = diagInfo["column"] as? Int,
+                              let endLineNumber = diagInfo["endLineNumber"] as? Int,
+                              let endColumn = diagInfo["endColumn"] as? Int else {
+                            return nil
+                        }
+                        
+                        let code = diagInfo["code"] as? String ?? ""
+                        
+                        // Convert severity string to enum
+                        let severity: EditorDiagnostic.DiagnosticSeverity
+                        switch severityStr {
+                        case "error":
+                            severity = .error
+                        case "warning":
+                            severity = .warning
+                        case "info":
+                            severity = .info
+                        default:
+                            severity = .hint
+                        }
+                        
+                        return EditorDiagnostic(
+                            message: message,
+                            severity: severity,
+                            lineNumber: lineNumber,
+                            column: column,
+                            endLineNumber: endLineNumber,
+                            endColumn: endColumn,
+                            code: code
+                        )
+                    }
+                    
+                    DispatchQueue.main.async {
+                        self.parent.diagnostics = parsedDiagnostics
                     }
                 }
                 

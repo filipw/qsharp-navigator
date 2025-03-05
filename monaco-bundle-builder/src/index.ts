@@ -268,6 +268,22 @@ const QSharpLanguageService = {
         
         this.markErrors();
         
+        try {
+          const formattedDiagnostics = diagnostics.map(diag => ({
+            message: diag.message,
+            severity: diag.severity || "error",
+            lineNumber: diag.range ? diag.range.start.line + 1 : 0,
+            column: diag.range ? diag.range.start.character + 1 : 0,
+            endLineNumber: diag.range ? diag.range.end.line + 1 : 0,
+            endColumn: diag.range ? diag.range.end.character + 1 : 0,
+            code: diag.code || ""
+          }));
+          
+          window.webkit.messageHandlers.diagnosticsChanged.postMessage(formattedDiagnostics);
+          logMessage("info", `Sent ${formattedDiagnostics.length} diagnostics to Swift`);
+        } catch (error) {
+          logMessage("error", "Failed to send diagnostics to Swift: " + error.toString());
+        }
       } catch (error) {
         logMessage("error", "Error handling diagnostics event: " + error.toString());
       }
